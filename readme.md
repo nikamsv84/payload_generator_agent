@@ -22,6 +22,7 @@ An AI agent that generates attack payloads for controlled penetration testing ag
 | **Multi-agent collaboration** | No (for now) | Unnecessary complexity at this scale; revisit only if a single agent's responsibilities grow too large to reason about |
 
 ## Architecture
+<img width="500" alt="payload_generator_agent_architecture_en" src="https://github.com/user-attachments/assets/78e8b8cf-1938-43fb-8b29-920d630146b0" />
 
 
 ### Why `check_for_leak_or_anomaly` combines regex and LLM judgment
