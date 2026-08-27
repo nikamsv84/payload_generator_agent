@@ -35,15 +35,29 @@ Early architecture/design phase. No agent code has been written yet.
 
 ### Planned phases
 
-- **Phase 1** — Minimal agent loop: a single `generate_payload` tool, no database, no RAG, no reflection. Goal: get the tool-calling mechanism working end to end with a local model (Ollama).
-- **Phase 2** — RAG pipeline: collect OWASP LLM Top 10 + PortSwigger reference material, chunk it, embed it, stand up a vector store, wire up `retrieve_attack_technique`.
-- **Phase 3** — Reflection: `self_critique` and `sandbox_test` added before any payload reaches a human.
+### Planned phases
+- **Phase 1** — Reflection core: given a `SecurityContext`/`HTTPRequest`, generate a malicious payload and self-critique it in a closed loop — no tools, no database, no RAG. Goal: get generate → critique → retry working end to end with a local model (Ollama).
+- **Phase 2** — RAG grounding: replace reliance on the model's general knowledge with retrieval from OWASP LLM Top 10 + PortSwigger reference material, so payloads are grounded in documented techniques rather than improvised.
+- **Phase 3** — Tool use: `sandbox_test` against a local model, plus reading the attack history chain so the agent can choose its strategy from context rather than a single isolated request.
 - **Phase 4** — Full integration: real attack history from the proxy's database, human-in-the-loop UI, Packet Inspector hookup.
-
+  
 ## Relationship to other repos
 
 - [`llm-attack-detector-training`](#) — trains the ML classifiers this agent's payloads are, indirectly, meant to help improve over time (successful attacks are candidates for future training data).
 - [`LLM-Inspector`](#) — the MITM proxy this agent integrates with; owns the actual request database and the human approval flow this agent's output feeds into.
+  
+## Reflection design (Phase 1)
+
+Phase 1 has no tools, no database, and no RAG — it's a closed loop between two calls to the same local model: one to draft, one to critique. Given a `SecurityContext`/`HTTPRequest`, the agent tries to produce a malicious version of that packet, capped at 3 retries so it can't loop indefinitely:
+
+1. **`generate_payload(security_context)`** — drafts a malicious version of the input packet.
+2. **`self_critique(original, payload)`** — the same model judges its own draft: is this a meaningful, plausible attack, or just a superficial or ineffective edit?
+
+If the critique passes, the payload is returned as this phase's final output. If it fails, the agent regenerates with that feedback. If the retry budget runs out without a clean pass, the last draft is still returned — this phase has no human-in-the-loop UI yet, so there's no reviewer to flag it as low-confidence for; that gate is added in a later phase once the agent is wired into the proxy.
+
+Deliberately out of scope for this phase: sandbox-testing the payload against a model (that's a tool call, deferred to Phase 3 alongside the rest of tool use), and grounding generation in OWASP/PortSwigger reference material (deferred to Phase 2 — RAG). Phase 1 is only about getting the generate → critique → retry loop working end to end.
+
+<img width="500" height="212" alt="reflection_flow_phase1" src="https://github.com/user-attachments/assets/a4fec531-f806-4512-a967-1716394a5db9" />
 
 ## Responsible use
 
