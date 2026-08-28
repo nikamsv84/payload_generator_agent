@@ -3,8 +3,7 @@
 An AI agent that generates attack payloads for controlled penetration testing against LLM API endpoints, grounded in the OWASP Top 10 for LLM Applications and PortSwigger's documented techniques. Built to integrate with [LLM Inspector](#) as an on-demand red-teaming tool — not an automated attacker.
 
 ## Why this exists
-
-[LLM Inspector](#) and its [detection models](#) answer *"is this request an attack?"*. This project answers a different question: *"what attack should we try next, given everything we've already seen?"* It's the offensive counterpart to the defensive pipeline — used to actively probe an endpoint's defenses, refine the detector's training data with real findings, and validate that the proxy's own protections actually hold up under a directed attack chain.
+[LLM Inspector](../llm-inspector) and its [detection models](#) answer *"is this request an attack?"*. This project answers a different question: *"what attack should we try next, given everything we've already seen?"* It's the offensive counterpart to the defensive pipeline — used to actively probe an endpoint's defenses, refine the detector's training data with real findings, and validate that the proxy's own protections actually hold up under a directed attack chain.
 
 ## Design principles (non-negotiable)
 
